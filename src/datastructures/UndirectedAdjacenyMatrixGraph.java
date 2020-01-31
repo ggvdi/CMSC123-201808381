@@ -1,15 +1,24 @@
 package datastructures;
 
-public class UndirectedGraphMatrix extends Graph {
+import java.util.ArrayList;
+
+public class UndirectedAdjacenyMatrixGraph extends Graph {
 	private boolean[][] adjacencyMatrix;
 	private String[] vertices;
 	private int vertexCount;
 	
-	public UndirectedGraphMatrix(String[] vertices, boolean[][] adjacencyMatrix) {
+	public UndirectedAdjacenyMatrixGraph(String[] vertices, boolean[][] adjacencyMatrix) {
 		this.adjacencyMatrix = adjacencyMatrix;
 		this.vertices = vertices;
 		vertexCount = vertices.length;
 		
+	}
+	
+	public UndirectedAdjacenyMatrixGraph() {
+		this.adjacencyMatrix = new boolean[0][0];
+		this.vertices = new String[0];
+		
+		vertexCount = vertices.length;
 	}
 	
 	public String[] getVertices() {
@@ -17,7 +26,7 @@ public class UndirectedGraphMatrix extends Graph {
 	}
 	
 	public int getVertexCount() {
-		return vertexCount;
+		return vertices.length;
 	}
 	
 	public int getEdgeCount() {
@@ -30,6 +39,8 @@ public class UndirectedGraphMatrix extends Graph {
 				if (adjacencyMatrix[i][j]) ++count;
 			}
 		}
+		
+		return count;
 	}
 	
 	public int getIndex(String a) {
@@ -42,7 +53,8 @@ public class UndirectedGraphMatrix extends Graph {
 	
 	public int getAdjacentCount(String a) {
 		int ix = getIndex(a);
-		getAdjacentCount(ix);
+		return getAdjacentCount(ix);
+		
 	}
 	
 	public int getAdjacentCount(int ix) {
@@ -106,8 +118,25 @@ public class UndirectedGraphMatrix extends Graph {
 		vertexCount++;
 	}
 	
-	public boolean isConnected() {
-		//TODO implementation
+	public boolean isConnected(String vertexA, String vertexB) {
+		ArrayList<String> openSet = new ArrayList<String>();
+		ArrayList<String> closedSet = new ArrayList<String>();
+		
+		openSet.add(vertexA);
+		while (openSet.size() != 0) {
+			String a = openSet.get(0);
+			int ix = getIndex(a);
+			
+			for (int i = 0; i < adjacencyMatrix[ix].length; ++i) {
+				if (adjacencyMatrix[ix][i]) {
+					openSet.add(vertices[i]);
+					if (vertices[i] == vertexB) return true;
+				}
+			}
+			
+			closedSet.add(a);
+			openSet.remove(0);
+		}
 		return false;
 	}
 	
@@ -116,7 +145,18 @@ public class UndirectedGraphMatrix extends Graph {
 	}
 	
 	public void removeVertex(String vertex){
-		//TODO
-		//HAHAHAHAHAH
+		int ix = getIndex(vertex);
+		
+		String[] ar = new String[vertices.length - 1];
+		int counter = 0;
+		for (int i = 0; i < vertices.length; ++i) {
+			if ( i != ix ) ar[counter++] = vertices[i];
+		}
+		
+		vertices = ar;
+	}
+	
+	public String[] getAdjacentVertices(String vertex) {
+		return null;
 	}
 }

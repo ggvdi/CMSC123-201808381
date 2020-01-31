@@ -111,17 +111,88 @@ public class UndirectedAdjacencyListGraph extends Graph{
 		ArrayList<String> closedSet = new ArrayList<String>();
 		return isConnected(vertexA, vertexB, closedSet);
 	}
-	public static void main(String[] args) {
-		ArrayList<String> a = new ArrayList<String>();
-		a.add("DEPUTA");
-		a.add("YAWA");
-		a.add("UNSAMANA");
-		String b = "LETSE";
-		a.add(b);
-		System.out.println(a.contains("YAWA"));
-		System.out.println(a.indexOf("DEPUTA"));
-		System.out.println(a.indexOf(b));
-		System.out.println(a.indexOf("ADs"));
+	
+	public String[] depthFirstTraversal(String startingVertex) {
+		int ix = getIndex(startingVertex);
+		if (ix == -1) return null;
+		
+		ArrayList<String> closedSet = new ArrayList<String>();
+		
+		depthFirstTraversal(startingVertex, closedSet);
+		String[] ret = new String[closedSet.size()];
+		
+		for (int i = 0; i < ret.length; ++i) {
+			ret[i] = closedSet.get(i);
+		}
+		
+		return ret;
 	}
 	
+	private void depthFirstTraversal(String vertex, ArrayList<String> closedSet) {
+		int ix = getIndex(vertex);
+		
+		closedSet.add(vertex);
+		
+		for (String adjacent : adjacencyLists.get(ix)) {
+			if ( !closedSet.contains(adjacent) )
+				depthFirstTraversal(adjacent, closedSet);
+		}
+	}
+	
+	public String[] breadthFirstTraversal(String startingVertex) {
+		Queue q = new Queue();
+		ArrayList<String> closedSet = new ArrayList<String>();
+		q.enqueue(startingVertex);
+		closedSet.add(startingVertex);
+		
+		String curr;
+		while ( (curr = q.dequeue()) != null ) {
+			int ix = getIndex(curr);
+			for (String vertex : adjacencyLists.get(ix)) {
+				if (!closedSet.contains(vertex)) {
+					closedSet.add(curr);
+					q.enqueue(curr);
+				}
+			}
+		}
+		
+		String[] ret = new String[closedSet.size()];
+		
+		for (int i = 0; i < ret.length; ++i) {
+			ret[i] = closedSet.get(i);
+		}
+		
+		return ret;
+	}
+	
+}
+
+class Queue {
+	class Node{
+		public String data;
+		public Node next;
+		public Node(String data){
+			this.data = data;
+			this.next = null;
+		}
+	}
+	
+	private Node front = null;
+	
+	public String dequeue() {
+		if (front == null) return null;
+		
+		return front.data;
+	}
+	
+	public void enqueue(String data) {
+		if (front == null) {
+			front = new Node(data);
+			return;
+		}
+		Node a = front;
+		while (a.next != null)
+			a = a.next;
+		a.next = new Node(data);
+	}
 }

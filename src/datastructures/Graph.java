@@ -16,4 +16,7 @@ public abstract class Graph{
 	
 	public abstract void addEdge(String a, String b);
 	public abstract void removeEdge(String a, String b);
+	
+	public abstract String[] depthFirstTraversal(String startingVertex);
+	public abstract String[] breadthFirstTraversal(String startingVertex);
 }

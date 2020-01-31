@@ -17,12 +17,17 @@ public class GraphTester {
 		System.out.println("\t8. Remove edge");
 		System.out.println("\t9. Check connectivity");
 		System.out.println("\t0. Check adjacency");
+		System.out.println("\tTRAVERSAL ALGORITHMS");
+		System.out.println("\t11. Depth-first traversal");
+		System.out.println("\t12. Breadth-first traversal");
+		
 		System.out.println("\tINPUT -1 TO EXIT");
 		System.out.println();
 	}
 	
 	public void loop() {
 		System.out.println("WELCOME TO GRAPH TESTER");
+		// code for doing stuff is in their own separate methods so that its not too messy
 		while (true) {
 			showMenu();
 			int choice = scan.nextInt();
@@ -61,6 +66,12 @@ public class GraphTester {
 					break;
 				case 0 :
 					checkAdjacency();
+					break;
+				case 11 :
+					depthFirstTraversal();
+					break;
+				case 12 :
+					breadthFirstTraversal();
 					break;
 			}
 		}
@@ -145,6 +156,30 @@ public class GraphTester {
 		graph.removeVertex(vertex);
 	}
 	
+	public void depthFirstTraversal() {
+		
+		System.out.print("ENTER STARTING VERTEX: ");
+		String vertex1 = scan.next();
+		System.out.println("DEPTH-FIRST TRAVERSAL: ");
+		
+		String[] dft = graph.depthFirstTraversal(vertex1);
+		System.out.print("[");
+		for (int i  = 0; i < dft.length; ++i) 
+			System.out.print(dft[i] + "->");
+		System.out.println("(end)]");
+	}
+	
+	public void breadthFirstTraversal() {
+		System.out.print("ENTER STARTING VERTEX: ");
+		String vertex1 = scan.next();
+		System.out.println("DEPTH-FIRST TRAVERSAL: ");
+		
+		String[] bft = graph.breadthFirstTraversal(vertex1);
+		System.out.println("[");
+		for (int i  = 0; i < bft.length; ++i) 
+			System.out.print(bft[i] + "->");
+		System.out.println("end]");
+	}
 		
 	public static void main(String[] args) {
 		new GraphTester().loop();
