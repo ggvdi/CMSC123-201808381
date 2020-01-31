@@ -1,9 +1,12 @@
+package testers;
+
 import java.util.Scanner;
-import datastructures.*;
+import datastructures.graph.*;
 
 public class GraphTester {
 	Scanner scan = new Scanner(System.in);
-	Graph graph = new UndirectedAdjacencyListGraph();
+	Graph graph = new UndirectedWeightedGraph();
+	//Graph graph = new UndirectedGraph();
 
 	public void showMenu() {
 		System.out.println();
@@ -147,13 +150,22 @@ public class GraphTester {
 	public void addVertex() {
 		System.out.print("ENTER VERTEX TO ADD: ");
 		String vertex = scan.next();
-		graph.addVertex(vertex);
+		
+		try {
+			graph.addVertex(vertex);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	public void removeVertex() {
 		System.out.print("ENTER VERTEX TO REMOVE: ");
 		String vertex = scan.next();
-		graph.removeVertex(vertex);
+		try {
+			graph.removeVertex(vertex);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 	
 	public void depthFirstTraversal() {
@@ -172,10 +184,10 @@ public class GraphTester {
 	public void breadthFirstTraversal() {
 		System.out.print("ENTER STARTING VERTEX: ");
 		String vertex1 = scan.next();
-		System.out.println("DEPTH-FIRST TRAVERSAL: ");
+		System.out.println("BREADTH-FIRST TRAVERSAL: ");
 		
 		String[] bft = graph.breadthFirstTraversal(vertex1);
-		System.out.println("[");
+		System.out.print("[");
 		for (int i  = 0; i < bft.length; ++i) 
 			System.out.print(bft[i] + "->");
 		System.out.println("end]");

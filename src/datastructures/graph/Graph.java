@@ -1,4 +1,4 @@
-package datastructures;
+package datastructures.graph;
 
 public abstract class Graph{
 	public abstract String[] getVertices();
@@ -11,8 +11,8 @@ public abstract class Graph{
 	public abstract boolean isConnected(String a, String b);
 	public abstract boolean isAdjacent(String a, String b);
 	
-	public abstract void addVertex(String a);
-	public abstract void removeVertex(String a);
+	public abstract void addVertex(String a) throws Exception;
+	public abstract void removeVertex(String a) throws Exception;
 	
 	public abstract void addEdge(String a, String b);
 	public abstract void removeEdge(String a, String b);
