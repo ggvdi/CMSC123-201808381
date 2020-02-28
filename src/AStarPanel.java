@@ -23,6 +23,7 @@ public class AStarPanel extends JPanel implements Runnable{
 	private	int[][] Gcosts = new int[GRID_SIZE][GRID_SIZE];
 	private Point[][] from = new Point[GRID_SIZE][GRID_SIZE];
 	private ArrayList<Point> openSet;
+	private ArrayList<Point> closedSet;
 	private Point lineEnd;
 	private boolean searchStarted = false;
 	
@@ -34,7 +35,8 @@ public class AStarPanel extends JPanel implements Runnable{
 	private BufferedInput bufferedInput = null;
 	
 	private double heuristic(int x, int y) {
-		return Math.sqrt((double)((x - END_X)*(x - END_X)) + (double)((y - END_Y)*(y - END_Y))); 
+		return Math.sqrt((double)((x - END_X)*(x - END_X)) + (double)((y - END_Y)*(y - END_Y)));
+		//return Math.abs(x - END_X) + Math.abs(y - END_Y);
 	}
 	
 	private double heuristic(Point p) {
@@ -96,6 +98,7 @@ public class AStarPanel extends JPanel implements Runnable{
 		}
 			
 		openSet = new ArrayList<Point>();
+		closedSet = new ArrayList<Point>();
 		
 		Gcosts[START_X][START_Y] = 0;
 		Fcosts[START_X][START_Y] = 0;
@@ -116,6 +119,7 @@ public class AStarPanel extends JPanel implements Runnable{
 			return;
 		}
 		openSet.remove(current);
+		closedSet.add(current);
 			
 		for (Point p : getNeighbors(current)) {
 			int tentativeCost = Gcosts[current.x][current.y] + walls[p.x][p.y];
@@ -144,6 +148,11 @@ public class AStarPanel extends JPanel implements Runnable{
 		G.setColor(new Color( 255, 0, 0));
 		for (int i = 0; i < GRID_SIZE; ++i) {
 			for (int j = 0; j < GRID_SIZE; ++j) {
+				if (closedSet != null) {
+					if (closedSet.contains(new Point(i,j))) G.setColor(Color.white);
+					else if (openSet.contains(new Point(i,j))) G.setColor(Color.green);
+					else G.setColor(Color.red);
+				}
 				if (walls[i][j] < 0)
 					G.fillRect(X_OFFSET + i * BLOCK_WIDTH, Y_OFFSET + j * BLOCK_WIDTH, BLOCK_WIDTH, BLOCK_WIDTH);
 				else 
@@ -205,11 +214,14 @@ public class AStarPanel extends JPanel implements Runnable{
 		int y_pos = toGridCoordinates(true , bufferedInput.y_pos);
 		
 		
+		System.out.println(x_pos + "," + y_pos);
 		if (x_pos < 0 || y_pos < 0 || x_pos >= GRID_SIZE || y_pos >= GRID_SIZE) {
 			if (!searchStarted && !bufferedInput.mouse1) {
 				initAStar();
+				System.out.println("ADASD");
 				searchStarted = true;
 			}
+			System.out.println("WTF" + (searchStarted ? "YES" : "NO"));
 			bufferedInput = null;
 			return;
 		}
