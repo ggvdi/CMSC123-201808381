@@ -1,3 +1,5 @@
+package datastructures;
+
 public class Queue<T> {
 	Link<T> front = null;
 	
