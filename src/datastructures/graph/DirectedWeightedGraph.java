@@ -3,17 +3,8 @@ package datastructures.graph;
 import java.util.ArrayList;
 
 //AdjacencyList implementation of Undirected and Weighted Graph
-public class UndirectedWeightedGraph extends WeightedGraph{
+public class DirectedWeightedGraph extends WeightedGraph{
 	private ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-	
-	
-	public int getEdgeWeight(String v_a, String v_b) {
-		Vertex current = getVertexByName(v_a);
-		for (Edge e : current.connectedEdges) {
-			if (v_b.equals(e.vertex.name)) return e.weight;
-		}
-		return 0;
-	}
 	
 	private Vertex getVertexByName(String name) {
 		for (Vertex v : vertices){
@@ -106,16 +97,11 @@ public class UndirectedWeightedGraph extends WeightedGraph{
 		throw new Exception("ERROR: VERTEX \"" +a+ "\" NOT FOUND");
 	}
 	
-	public void addEdge(String a, String b) {
-		this.addEdge(a,b,0);
-	}
-	
 	public void addEdge(String a, String b, int weight) {
 		Vertex v_a = getVertexByName(a);
 		Vertex v_b = getVertexByName(b);
 		
 		v_a.addEdge(v_b, weight);
-		v_b.addEdge(v_a, weight);
 	}
 	
 	public void removeEdge(String a, String b) {
@@ -123,7 +109,6 @@ public class UndirectedWeightedGraph extends WeightedGraph{
 		Vertex v_b = getVertexByName(b);
 		
 		v_a.removeEdge(v_b);
-		v_b.removeEdge(v_a);
 	}
 	
 	public String[] depthFirstTraversal(String startingVertex) {
@@ -140,6 +125,10 @@ public class UndirectedWeightedGraph extends WeightedGraph{
 		}
 		
 		return ret;
+	}
+	
+	public int getEdgeWeight(String v_a, String v_b) {
+		return 0;
 	}
 	
 	private void depthFirstTraversal(Vertex vertex, ArrayList<Vertex> closedSet) {
