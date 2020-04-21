@@ -1,3 +1,5 @@
+package sandbox;
+
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import java.awt.Graphics;
