@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Toolkit;
 import java.awt.Image;
 import java.awt.Dimension;
+import java.text.DecimalFormat;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -23,6 +24,12 @@ public abstract class DisplayPanel extends JPanel implements Runnable{
 	private float targetFrameTime = 0.016f; // 60 FPS
 	private JFrame FRAME = null;
 	
+	private boolean recording = false;
+	private ImageWriter iw = null;
+	private DecimalFormat df = new DecimalFormat("000");
+	private int framesleft = 0;
+	private int imageCounter = 0;
+	
 	
 	public DisplayPanel(String title, int width, int height) { 
 		this.width = width;
@@ -33,6 +40,17 @@ public abstract class DisplayPanel extends JPanel implements Runnable{
 	public abstract void render(Graphics2D G);
 	public abstract void update(float dt);
 	public abstract void init();
+	
+	public void recordFrame() {
+		if (iw == null) iw = new ImageWriter("C:/Users/Admin/Documents/test/");
+		if (dbImage == null) return;
+		String fname = title + df.format(imageCounter++);
+		iw.writeImage(dbImage, fname);
+	}
+	
+	public void redrawFrame() {
+		this.doubleBuffering();
+	}
 	
 	private void doubleBuffering(){
 		if (dbImage == null){
@@ -47,6 +65,13 @@ public abstract class DisplayPanel extends JPanel implements Runnable{
 		dbg.fillRect(0,0,width, height);
 		if (dbg!=null)
 			render(dbg);
+		
+		if (recording) {
+			framesleft--;
+			recordFrame();
+			if (framesleft <= 0)
+				recording = false;
+		}
 	}
 	
 	private void paintPanel(){
@@ -64,17 +89,26 @@ public abstract class DisplayPanel extends JPanel implements Runnable{
 		{ System.out.println("Graphics context error: " + e); }
 	}
 	
+	public void startRecord(int frames) {
+		if (recording) return;
+		recording = true;
+		framesleft = frames;
+	}
 	
 	@Override
 	public void run() {
 		init();
 		lastFrame = System.nanoTime();
 		float accumulator = 0.f;
+		
+		doubleBuffering();
+		paintPanel();
 		while(true) {
 			try {
 				while (accumulator >= targetFrameTime) {
 					update(targetFrameTime);
 					accumulator -= targetFrameTime;
+									
 				}
 				doubleBuffering();
 				paintPanel();
@@ -86,6 +120,7 @@ public abstract class DisplayPanel extends JPanel implements Runnable{
 				float frameTimeSeconds = (float)frameTimeMillis / 1000.f;
 				
 				accumulator += frameTimeSeconds;
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

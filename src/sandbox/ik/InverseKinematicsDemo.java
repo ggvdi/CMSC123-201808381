@@ -1,6 +1,7 @@
 package sandbox.ik;
 
 import sandbox.utils.DisplayPanel;
+import sandbox.utils.NoiseGenerator;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -10,13 +11,14 @@ import java.awt.Point;
 public class InverseKinematicsDemo extends DisplayPanel {
 	public static final int WIDTH = 800, HEIGHT = 800;
 	public static final int NUM_TIPS_PER_SIDE = 150;
-	public static final int NUM_SEGMENTS_PER_TIP = 40;
-	public static final int LENGHT_PER_SEGMENT = 20;
+	public static final int NUM_SEGMENTS_PER_TIP = 100;
+	public static final int LENGHT_PER_SEGMENT = 9;
 	private Segment[] tips;
 	
 	private boolean doonce = true;
 	
 	public float x = WIDTH / 2, y = HEIGHT / 2;
+	private float angle = 0.f;
 	
 	public InverseKinematicsDemo() {
 		super("InverseKinematicsDemo", WIDTH, HEIGHT);
@@ -88,35 +90,42 @@ public class InverseKinematicsDemo extends DisplayPanel {
 		}
 	}
 	
+	
 	public void update(float dt) {
 		
-		//Point a = this.getMousePosition();
-		//if (a != null) {
-		//	x = (float)a.x;
-		//	y = (float)a.y;
-		//}
+		Point a = this.getMousePosition();
+		if (a != null) {
+			x = (float)a.x;
+			y = (float)a.y;
+		}
+		//angle += dt * 0.5f;
+		//float dx = (float)NoiseGenerator.noise((float)Math.cos(angle),(float)Math.sin(angle)) * 2 - 1;
+		//float dy = (float)NoiseGenerator.noise((float)Math.cos(-angle) * 1.5f,(float)Math.sin(-angle) * 1.5f) * 2 - 1;
 		
 		for (Segment tip : tips) {
-			tip.anchoredFollow(x, y);
+			tip.anchoredFollow(x , y );
 		}
+		
 	}
 	
 	public void render(Graphics2D g) {
-		if (doonce) {
-			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		}
+		//if (doonce) {
+		//	g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		//}
 		
 		g.setColor(Color.black);
 		
 		for (Segment tip : tips) {
 			Segment current = tip;
+			float color = 0.0f;
 			while (current != null) {
+				g.setColor(new Color(color, color, color, 1.f));
 				current.draw(g);
 				current = current.getParent();
+				color += 0.01;
 			}
 		}
 		
-		g.fillOval((int)x - 5, (int)y-5, 10, 10);
 	}
 	
 	public static void main(String[] args) {
