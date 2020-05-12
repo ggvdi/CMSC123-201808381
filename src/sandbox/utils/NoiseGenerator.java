@@ -1,71 +1,75 @@
 package sandbox.utils;
 
 public class NoiseGenerator {
-	public static final int NOISE_MAP_SIZE = 256;
-	
 	private static float[] noisemap = null;
+	private static final int   NUM_OCTAVES = 8;
+	private static final float PERSISTENCE = 0.25f;
 	
-	public static float noise(float x, float y) {
-		if (noisemap == null) generateNoiseMap();
-		
-		if (x < 0) x = -x;
-		if (y < 0) y = -y;
-		
-		int x0 = (int)x   ;
-		int x1 = (x0 + 1) ;
-		int y0 = (int)y   ;
-		int y1 = (y0 + 1) ;
-		
-		float w = x - (float)Math.floor(x);
-		float h = y - (float)Math.floor(y);
-		
-		int loc = prand(x0, y0);
-		float pass1 = 1.f * noisemap[loc];
-		//float pass2 = 0.25f * noisemap[loc + 1] * noisemap[loc-1];
-		//float pass3 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2];
-		//float pass4 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2] *  noisemap[loc + 3] * noisemap[loc-3];
-		float total1 = pass1;// + pass2 + pass3 + pass4;
-		
-		loc = prand(x0, y1);
-		pass1 = 1.f * noisemap[loc];
-		//pass2 = 0.25f * noisemap[loc + 1] * noisemap[loc-1];
-		//pass3 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2];
-		//pass4 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2] *  noisemap[loc + 3] * noisemap[loc-3];
-		float total2 = pass1;// + pass2 + pass3 + pass4;
-		
-		loc = prand(x1, y0);
-		pass1 = 1.f * noisemap[loc];
-		//pass2 = 0.25f * noisemap[loc + 1] * noisemap[loc-1];
-		//pass3 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2];
-		//pass4 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2] *  noisemap[loc + 3] * noisemap[loc-3];
-		float total3 = pass1;// + pass2 + pass3 + pass4;
-		
-		loc = prand(x1, y1);
-		pass1 = 1.f * noisemap[loc];
-		//pass2 = 0.25f * noisemap[loc + 1] * noisemap[loc-1];
-		//pass3 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2];
-		//pass4 = 0.125f * noisemap[loc + 1] * noisemap[loc-1] * noisemap[loc + 2] * noisemap[loc-2] *  noisemap[loc + 3] * noisemap[loc-3];
-		float total4 = pass1;// + pass2 + pass3 + pass4;
-		
-		
-		float horiz1 = lerp(total3, total1, w);
-		float horiz2 = lerp(total4, total2, w);
-		return lerp(horiz2, horiz1, h);
+	private static float rand(float n) {
+		return ((float)Math.sin(n * 12.9898f + n * 78.233f) * 2.5453f) % 1.f;
 	}
 	
-	private static float lerp(float a, float b, float ratio) {
-		return (1.0f - ratio)*b + ratio*a;
+	private static float rand2D(float x, float y) {
+		float n = x + y * 57;
+		n = n * n * n;
+		return rand(n);
 	}
 	
-	private static int prand(float x, float y) {
-		double fpart = Math.cos(Math.cos(x * 0.4) + Math.cos(x * y) * 0.35) * 0.5 + 0.5;
-		return (int)(fpart * 250) + 3;
+
+	private static float smoothNoise(float x, float y) {
+		float corners = ( rand2D(x-1, y-1) + rand2D(x+1, y-1) + rand2D(x-1, y+1) + rand2D(x+1, y+1) ) / 8.f;
+		float sides   = ( rand2D(x-1, y)   + rand2D(x+1, y)   + rand2D(x, y-1)   + rand2D(x, y+1) ) /  8.f;
+        float center  =   rand2D(x, y) / 4.f;
+		return corners + sides + center;
 	}
 	
-	public static void generateNoiseMap() {
-		noisemap = new float[NOISE_MAP_SIZE];
-		for (int i = 0; i < noisemap.length; ++i) {
-			noisemap[i] = (float)Math.random();
+	private static float interpolatedNoise(float x, float y) {
+		int ix = (int)x;
+		float fx = x - ix;
+		int iy = (int)y;
+		float fy = y - iy;
+		
+		float v00 = smoothNoise(ix    , iy);
+		float v01 = smoothNoise(ix    , iy + 1);
+		float v11 = smoothNoise(ix + 1, iy + 1);
+		float v10 = smoothNoise(ix + 1, iy);
+		
+		float w1 = cosineInterpolation(v00, v10, fx);
+		float w2 = cosineInterpolation(v01, v11, fx);
+		
+		return cosineInterpolation(w1, w2, fy);
+	}
+	
+	public static float noise2D(float x, float y) {
+		int ix = (int)x;
+		float fx = x - ix;
+		
+		int iy = (int)y;
+		float fy = y - iy;
+		
+		float total = 0;
+		float amp = 1;
+		float freq = 1;
+		
+		for (int i = 0; i < NUM_OCTAVES; ++i) {
+			total += interpolatedNoise( x * freq, y * freq ) * amp;
+			amp *= PERSISTENCE;
+			freq *= 2;
 		}
+		
+		return total;
+	}
+	public static float lerp(float a, float b, float w) {
+		return b * w + a * (1 - w);
+	}
+	
+	public static float cosineInterpolation(float a, float b, float w) {
+		float rad = w * (float)Math.PI;
+		float f = (1 - (float)Math.cos(rad)) * 0.5f;
+		return a * (1-f) + b * f;
+	}
+	
+	public static float noise(float x) {
+		return 1.f;
 	}
 }
